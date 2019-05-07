@@ -6,10 +6,10 @@ if os.environ.get("POSTGRES"):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'HOST': 'db',
+            'HOST': os.environ.get("POSTGRES_HOST"),
             'PORT': '5432',
-            'USER': 'postgres',
-            'NAME': 'postgres',
+            'USER': os.environ.get("POSTGRES_USER"),
+            'NAME': os.environ.get("POSTGRES_PASSWORD"),
         }
     }
 
