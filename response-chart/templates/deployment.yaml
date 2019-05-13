@@ -1,0 +1,74 @@
+{{- $fullName := include "response.fullname" . -}}
+{{- $namespace :=  .Release.Namespace | default "default" | quote -}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: {{ $namespace }}
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "response.name" . }}
+    helm.sh/chart: {{ include "response.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.response.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "response.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "response.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - image: "{{ .Values.response.image.repository }}:{{ .Values.response.image.tag }}"
+        imagePullPolicy: {{ .Values.response.image.pullPolicy }}
+        name: {{ $fullName }}
+        ports:
+        - containerPort: {{ .Values.response.containerPort }}
+        args:
+        - /app/startup.sh
+        command:
+        - bash
+        stdin: true
+        tty: true
+        volumeMounts:
+        - mountPath: /environment
+          name: {{ $fullName }}-claim
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        env:
+        - name: POSTGRES
+          value: "true"
+        {{- range .Values.response.envVars }}
+        - name: {{ . }}
+          valueFrom:
+            configMapKeyRef:
+              key: {{ . }}
+              name: {{ $.Release.Name }}-env
+        {{- end }}
+      - image: "{{ .Values.responseStatic.image.repository }}:{{ .Values.responseStatic.image.tag }}"
+        imagePullPolicy: {{ .Values.responseStatic.image.pullPolicy }}
+        name: {{ $fullName }}-static
+        ports:
+        - containerPort: {{ .Values.responseStatic.containerPort }}
+      restartPolicy: Always
+      volumes:
+      - name: {{ $fullName }}-claim
+        persistentVolumeClaim:
+          claimName: {{ $fullName }}-claim
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

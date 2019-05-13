@@ -1,0 +1,17 @@
+{{- $fullName := include "response.fullname" . -}}
+{{- $namespace :=  .Release.Namespace | default "default" | quote -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: {{ $namespace }}
+  name: {{ $fullName }}-claim
+  labels:
+    app.kubernetes.io/name: {{ include "response.name" . }}
+    helm.sh/chart: {{ include "response.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolumeClaim.requestStorage }}

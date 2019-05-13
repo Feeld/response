@@ -1,0 +1,20 @@
+# TODO: Use a more secured way to set the passwords/sensitive data
+# Config maps just create env vars that can be
+# accessed by any pod inside the same namespace
+{{- $fullName := include "response.fullname" . }}
+apiVersion: v1
+data:
+{{- range .Files.Lines ".env" }}
+  {{- if . -}}
+  {{- $parts := split "=" . -}}
+  {{- printf "%s: %s" $parts._0 $parts._1 | trim | nindent 2 -}}
+  {{- end -}}
+{{- end }}
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace | default "default" | quote }}
+  name: {{ $fullName -}}-env
+  labels:
+    app.kubernetes.io/name: {{ include "response.name" . }}
+    helm.sh/chart: {{ include "response.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

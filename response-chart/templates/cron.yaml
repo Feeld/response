@@ -1,0 +1,28 @@
+{{- $fullName := include "response.fullname" . -}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | default "default" | quote }}
+  name: {{ $fullName }}-cron
+  labels:
+    app.kubernetes.io/name: {{ include "response.name" . }}-cron
+    helm.sh/chart: {{ include "response.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "response.name" . }}-cron
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "response.name" . }}-cron
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - image: "{{ .Values.cron.image.repository }}:{{ .Values.cron.image.tag }}"
+        imagePullPolicy: {{ .Values.cron.image.pullPolicy }}
+        name: {{ $fullName }}-cron
+        tty: true
+      restartPolicy: Always

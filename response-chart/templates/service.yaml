@@ -1,0 +1,22 @@
+{{- $fullName := include "response.fullname" . -}}
+{{- $namespace :=  .Release.Namespace | default "default" | quote -}}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ $namespace }}
+  name: {{ $fullName }}-service
+  labels:
+    app.kubernetes.io/name: {{ include "response.name" . }}
+    helm.sh/chart: {{ include "response.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type | default "NodePort" | quote}}
+  ports:
+  {{- range .Values.service.list }}
+  - name: {{ .name | quote }}
+    port: {{ .port  }}
+    targetPort: {{ .containerPort }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "response.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

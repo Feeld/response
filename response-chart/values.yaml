@@ -1,0 +1,82 @@
+replicaCount: &replicaCount 1
+
+persistentVolumeClaim:
+  requestStorage: 100Mi
+
+response: &response
+  replicas: *replicaCount
+  name: response
+  path: /
+  port: 8000
+  containerPort: 8000
+  image:
+    repository: response:stable
+    pullPolicy: IfNotPresent
+  envVars:
+  - INCIDENT_BOT_NAME
+  - INCIDENT_CHANNEL_NAME
+  - POSTGRES_HOST
+  - POSTGRES_DB_NAME
+  - POSTGRES_USER
+  - POSTGRES_PASSWORD
+  - SLACK_SIGNING_SECRET
+  - SLACK_TOKEN
+  - DJANGO_SETTINGS_MODULE
+  - DJANGO_ADMIN_PASS
+  - SITE_URL
+
+responseStatic: &responseStatic
+  replicas: *replicaCount
+  name: static
+  path: /static
+  port: 8080
+  containerPort: 80
+  image:
+    repository: static:stable
+    pullPolicy: IfNotPresent
+
+cron:
+  replicas: *replicaCount
+  name: cron
+  image:
+    repository: cron:stable
+    pullPolicy: IfNotPresent
+
+service:
+ type: NodePort
+ list:
+   - *responseStatic
+   - *response
+
+nameOverride: ""
+fullnameOverride: ""
+
+ingress:
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # kubernetes.io/ingress.allow-http: "false"
+  hosts: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
