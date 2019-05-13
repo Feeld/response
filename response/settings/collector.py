@@ -1,0 +1,6 @@
+from .base import *
+
+SLACK_TOKEN = ""
+SLACK_SIGNING_SECRET = ""
+INCIDENT_CHANNEL_NAME = ""
+INCIDENT_BOT_NAME = ""
