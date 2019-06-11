@@ -5,7 +5,7 @@
 - Install [Helm](https://github.com/helm/helm#install) on your machine
 - Make sure you've your k8 context pointing to the right one: `kubectl config current-context`
 - Have a posgres instance & DB accessible from your k8s cluster.
-- Create the `.env` file on the root project folder.
+- Create the `.env` file on the response-chart folder.
    - Check the `env.example` file to see the variables needed on the `.env` one.
 - Build & deploy the **response**, **cron** and **static** images to a registry accessible on your k8s cluster.
 
