@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
-      - image: "{{ .Values.cron.image.repository }}:{{ .Values.cron.image.tag }}"
+      - image: "{{ .Values.cron.image.repository }}"
         imagePullPolicy: {{ .Values.cron.image.pullPolicy }}
         name: {{ $fullName }}-cron
         tty: true

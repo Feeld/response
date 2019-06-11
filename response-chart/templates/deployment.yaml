@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
-      - image: "{{ .Values.response.image.repository }}:{{ .Values.response.image.tag }}"
+      - image: "{{ .Values.response.image.repository }}"
         imagePullPolicy: {{ .Values.response.image.pullPolicy }}
         name: {{ $fullName }}
         ports:
@@ -50,7 +50,7 @@ spec:
               key: {{ . }}
               name: {{ $.Release.Name }}-env
         {{- end }}
-      - image: "{{ .Values.responseStatic.image.repository }}:{{ .Values.responseStatic.image.tag }}"
+      - image: "{{ .Values.responseStatic.image.repository }}"
         imagePullPolicy: {{ .Values.responseStatic.image.pullPolicy }}
         name: {{ $fullName }}-static
         ports:
