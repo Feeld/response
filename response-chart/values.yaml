@@ -24,6 +24,7 @@ response: &response
   - DJANGO_SETTINGS_MODULE
   - DJANGO_ADMIN_PASS
   - SITE_URL
+  - PAGERDUTY_ENABLED
 
 responseStatic: &responseStatic
   replicas: *replicaCount
