@@ -3,6 +3,8 @@ replicaCount: &replicaCount 1
 persistentVolumeClaim:
   requestStorage: 100Mi
 
+env: dev
+
 response: &response
   replicas: *replicaCount
   name: response
@@ -11,20 +13,26 @@ response: &response
   containerPort: 8000
   image:
     repository: response:stable
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   envVars:
-  - INCIDENT_BOT_NAME
-  - INCIDENT_CHANNEL_NAME
-  - POSTGRES_HOST
-  - POSTGRES_DB_NAME
-  - POSTGRES_USER
-  - POSTGRES_PASSWORD
-  - SLACK_SIGNING_SECRET
   - SLACK_TOKEN
+  - SLACK_SIGNING_SECRET
+  - INCIDENT_CHANNEL_NAME
+  - INCIDENT_BOT_NAME
+  - ENCRYPTED_FIELD_KEY
+  - DB_HOST
+  - DB_NAME
+  - DB_USER
+  - DB_PORT
+  - DB_SSL_MODE
+  - DB_PASSWORD
+  - SITE_URL
   - DJANGO_SETTINGS_MODULE
   - DJANGO_ADMIN_PASS
-  - SITE_URL
   - PAGERDUTY_ENABLED
+  - PAGERDUTY_SERVICE
+  - PAGERDUTY_API_KEY
+  - PAGERDUTY_DEFAULT_EMAIL
 
 responseStatic: &responseStatic
   replicas: *replicaCount
@@ -34,14 +42,14 @@ responseStatic: &responseStatic
   containerPort: 80
   image:
     repository: static:stable
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
 cron:
   replicas: *replicaCount
   name: cron
   image:
     repository: cron:stable
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
 service:
  type: NodePort
