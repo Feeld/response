@@ -1,7 +1,10 @@
 from .base import *
 
-SLACK_TOKEN = ""
-SLACK_SIGNING_SECRET = ""
-INCIDENT_CHANNEL_NAME = ""
-INCIDENT_BOT_NAME = ""
-PAGERDUTY_ENABLED = False
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
+    'ui.apps.UiConfig',
+    'rest_framework',
+    'bootstrap4',
+]
