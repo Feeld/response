@@ -32,7 +32,7 @@ spec:
         {{- range $.Values.service.list }}
           - path: {{ .path }}
             backend:
-              serviceName: {{ $fullName }}-service
+              serviceName: {{ $fullName }}
               servicePort: {{ .port }}
         {{- end }}
   {{- end }}
@@ -42,7 +42,7 @@ spec:
         {{- range $.Values.service.list }}
           - path: {{ .path }}
             backend:
-              serviceName: {{ $fullName }}-service
+              serviceName: {{ $fullName }}
               servicePort: {{ .port }}
         {{- end }}
   {{- end }}

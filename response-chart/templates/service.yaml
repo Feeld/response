@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: {{ $namespace }}
-  name: {{ $fullName }}-service
+  name: {{ $fullName }}
   labels:
     app.kubernetes.io/name: {{ include "response.name" . }}
     helm.sh/chart: {{ include "response.chart" . }}
