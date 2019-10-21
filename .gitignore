@@ -10,3 +10,6 @@ Pipfile
 virtual-env
 *.env
 /src/
+
+auth/k8s/secret*.yaml
+auth/tls

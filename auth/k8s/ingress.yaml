@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    app.kubernetes.io/component: http-auth-service
+    app.kubernetes.io/instance: response
+    app.kubernetes.io/name: response
+    app.kubernetes.io/part-of: response
+    certmanager.k8s.io/cluster-issuer: fld-letsencrypt-prd
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  labels:
+    app.kubernetes.io/instance: response
+    app.kubernetes.io/name: response
+  name: response-authed
+  namespace: incident-response
+spec:
+  rules:
+    - host: incidents.fld.systems
+      http:
+        paths:
+          - backend:
+              serviceName: proxy
+              servicePort: https
+    - host: incidents-auth.fld.systems
+      http:
+        paths:
+          - backend:
+              serviceName: authn
+              servicePort: https
+  tls:
+    - hosts:
+        - incidents.fld.systems
+        - incidents-auth.fld.systems
+      secretName: tls-cert-incidents
