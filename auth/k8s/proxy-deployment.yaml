@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pomerium
+    app.kubernetes.io/component: proxy
+  name: proxy
+  namespace: incident-response
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pomerium
+      app.kubernetes.io/component: proxy
+  template:
+    metadata:
+      annotations: {}
+      # checksum/config: 52133ddfcd583280388a8bbfb67a417b6b660f75bc63ec1b01beec811d4498ef
+      # checksum/secret: 70cfeae0222c88a24e261ab0355dd4ea92dde47e0780f9d6b554e144580d1650
+      labels:
+        app.kubernetes.io/name: pomerium
+        app.kubernetes.io/component: proxy
+    spec:
+      containers:
+        - name: pomerium
+          image: pomerium/pomerium:v0.4.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config=/etc/pomerium/config.yaml
+          env:
+            - name: SERVICES
+              value: proxy
+            - name: AUTHENTICATE_SERVICE_URL
+              value: https://incidents-auth.fld.systems
+            - name: AUTHORIZE_SERVICE_URL
+              value: https://authz.incident-response.svc.cluster.local
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: pomerium
+                  key: cookie-secret
+            - name: SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: pomerium
+                  key: shared-secret
+            - name: CERTIFICATE_FILE
+              value: "/pomerium/cert.pem"
+            - name: CERTIFICATE_KEY_FILE
+              value: "/pomerium/privkey.pem"
+            - name: CERTIFICATE_AUTHORITY_FILE
+              value: "/pomerium/ca.pem"
+          ports:
+            - containerPort: 443
+              name: https
+              protocol: TCP
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: https
+              scheme: HTTPS
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: https
+              scheme: HTTPS
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /etc/pomerium/
+              name: config
+            - mountPath: /pomerium/cert.pem
+              name: service-tls
+              subPath: tls.crt
+            - mountPath: /pomerium/privkey.pem
+              name: service-tls
+              subPath: tls.key
+            - mountPath: /pomerium/ca.pem
+              name: ca-tls
+              subPath: ca.crt
+      volumes:
+        - name: config
+          configMap:
+            name: auth-proxy-config
+        - name: service-tls
+          secret:
+            secretName: proxy-tls
+        - name: ca-tls
+          secret:
+            secretName: ca-tls

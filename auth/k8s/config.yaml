@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-proxy-config
+  namespace: incident-response
+data:
+  config.yaml: |
+    idp_provider: google
+    idp_provider_url: https://accounts.google.com
+    idp_scopes:
+      - openid
+      - email
+      - profile
+    policy:
+      - from: https://incidents.fld.systems
+        to: http://response-unifier.incident-response.svc.cluster.local
+        cors_allow_preflight: true
+        timeout: 30s
+        allowed_domains:
+          - feeld.co

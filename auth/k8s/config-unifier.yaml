@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  Caddyfile: |+
+    :80
+    tls off
+    proxy /static response.incident-response.svc.cluster.local:8080
+    proxy / response.incident-response.svc.cluster.local:8000
+
+kind: ConfigMap
+metadata:
+  name: unifier-config
+  namespace: incident-response

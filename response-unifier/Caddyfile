@@ -1,0 +1,4 @@
+tls off
+proxy / response.incident-response.svc.cluster.local:8000
+proxy /static response.incident-response.svc.cluster.local:8080
+
