@@ -19,12 +19,13 @@ RUN apk add --no-cache \
   openssh-client \
   tar \
   tzdata
-RUN mkdir /conf
+RUN mkdir /conf && mkdir /tls
 COPY --from=builder /install/caddy /usr/bin/caddy
 RUN /usr/bin/caddy -version
 RUN /usr/bin/caddy -plugins
 EXPOSE 80 443 2015
 VOLUME /conf
+VOLUME /tls
 WORKDIR /srv
 COPY --from=builder /go/bin/parent /bin/parent
 ENTRYPOINT ["/bin/parent", "caddy"]

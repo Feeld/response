@@ -18,13 +18,17 @@ spec:
     spec:
       containers:
         - name: caddy
-          image: gcr.io/fld-staging/response-unifier:1.0.0
+          image: gcr.io/fld-staging/response-unifier:1.0.1
           ports:
             - containerPort: 80
               name: http
+            - containerPort: 443
+              name: https
           volumeMounts:
             - mountPath: /conf/
               name: conf
+            - mountPath: /tls/
+              name: tls
           resources:
             requests:
               cpu: 10m
@@ -36,3 +40,6 @@ spec:
         - name: conf
           configMap:
             name: unifier-config
+        - name: tls
+          secret:
+            secretName: tls-cert-incidents
