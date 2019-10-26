@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: caddy
     app.kubernetes.io/component: web
   annotations:
-    cloud.google.com/app-protocols: '{"http":"HTTP"}'
+    cloud.google.com/app-protocols: '{"http":"HTTP","https":"HTTPS"}'
 spec:
   type: ClusterIP
   ports:
@@ -16,6 +16,10 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: 443
+      targetPort: https
+      protocol: TCP
+      name: https
   selector:
     app.kubernetes.io/name: caddy
     app.kubernetes.io/component: web

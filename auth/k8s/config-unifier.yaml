@@ -1,10 +1,15 @@
 apiVersion: v1
 data:
   Caddyfile: |+
-    :80
-    tls off
-    proxy /static response.incident-response.svc.cluster.local:8080
-    proxy / response.incident-response.svc.cluster.local:8000
+    upstream_balancer:443, incidents.fld.systems:443, response-unifier.incident-response.svc.cluster.local:443 {
+      tls self_signed
+      proxy /static response.incident-response.svc.cluster.local:8080
+      proxy / response.incident-response.svc.cluster.local:8000
+    }
+    upstream_balancer:80, incidents.fld.systems:80, response-unifier.incident-response.svc.cluster.local:80 {
+      proxy /static response.incident-response.svc.cluster.local:8080
+      proxy / response.incident-response.svc.cluster.local:8000
+    }
 
 kind: ConfigMap
 metadata:
