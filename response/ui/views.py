@@ -8,7 +8,6 @@ from response.slack.models import PinnedMessage, UserStats
 
 @response_login_required
 def incident_doc(request: HttpRequest, incident_id: str):
-
     try:
         incident = Incident.objects.get(pk=incident_id)
     except Incident.DoesNotExist:

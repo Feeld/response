@@ -1,9 +1,7 @@
 import logging
-import re
 import time
 
 import slackclient
-from django.conf import settings
 from slugify import slugify
 
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ class SlackClient(object):
                     try:
                         # Increase backoff with every attempt
                         backoff_seconds = self.retry_base_backoff_seconds * i
-                        logging.warn(
+                        logging.warning(
                             f"Retrying request to {api_endpoint} after error {error}. Backing off {backoff_seconds:.2f}s (attempt {i} of {self.max_retry_attempts})"
                         )
 
@@ -119,14 +117,14 @@ class SlackClient(object):
 
         raise SlackError(f"Channel '{name}' not found")
 
-    def get_usergroup_id(self, group_name):
+    def get_usergroup_id(self, group_handle):
         response = self.api_call("usergroups.list")
         if not response.get("ok", False):
             raise SlackError(
-                f"Failed to get usergroup with group name {group_name} : {response['error']}"
+                f"Failed to get usergroup with group handle {group_handle} : {response['error']}"
             )
         for group in response["usergroups"]:
-            if group["name"] == group_name:
+            if group["handle"] == group_handle:
                 return group["id"]
         return None
 
@@ -276,34 +274,3 @@ class SlackClient(object):
 
     def dialog_open(self, dialog, trigger_id):
         return self.api_call("dialog.open", trigger_id=trigger_id, dialog=dialog)
-
-
-def channel_reference(channel_id):
-    if channel_id is None:
-        return None
-    return f"<#{channel_id}>"
-
-
-def user_reference(user_id):
-    return f"<@{user_id}>"
-
-
-def reference_to_id(value):
-    """take a string containing <@U123ABCD> refs and extract first match"""
-    m = re.search(r"<@(U[A-Z0-9]+)>", value)
-    return m.group(1) if m else None
-
-
-def user_ref_to_username(value):
-    """takes a <@U123ABCD> style ref and returns an @username"""
-    # strip the '<@' and '>'
-    user_id = reference_to_id(value.group())
-    user_profile = settings.SLACK_CLIENT.get_user_profile(user_id)
-    return "@" + user_profile["name"] or user_id
-
-
-def slack_to_human_readable(value):
-    # replace user references (<@U3231FFD>) with usernames (@chrisevans)
-    value = re.sub(r"(<@U[A-Z0-9]+>)", user_ref_to_username, value)
-    value = re.sub(r"(<#C[A-Z0-9]+\|([\-a-zA-Z0-9]+)>)", r"#\2", value)
-    return value

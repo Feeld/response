@@ -1,34 +1,22 @@
+import logging
 from datetime import datetime
 
 from response.core.models import Action, ExternalUser, Incident
 from response.slack.cache import get_user_profile
-from response.slack.client import SlackError, reference_to_id
+from response.slack.client import SlackError
 from response.slack.decorators.incident_command import (
     __default_incident_command,
     get_help,
 )
 from response.slack.models import CommsChannel
+from response.slack.reference_utils import reference_to_id
+
+logger = logging.getLogger(__name__)
 
 
 @__default_incident_command(["help"], helptext="Display a list of commands and usage")
 def send_help_text(incident: Incident, user_id: str, message: str):
     return True, get_help()
-
-
-@__default_incident_command(
-    ["summary"], helptext="Provide a summary of what's going on"
-)
-def update_summary(incident: Incident, user_id: str, message: str):
-    incident.summary = message
-    incident.save()
-    return True, None
-
-
-@__default_incident_command(["impact"], helptext="Explain the impact of this")
-def update_impact(incident: Incident, user_id: str, message: str):
-    incident.impact = message
-    incident.save()
-    return True, None
 
 
 @__default_incident_command(["lead"], helptext="Assign someone as the incident lead")
@@ -59,11 +47,12 @@ def set_severity(incident: Incident, user_id: str, message: str):
 def rename_incident(incident: Incident, user_id: str, message: str):
     try:
         comms_channel = CommsChannel.objects.get(incident=incident)
+        logger.info(f"Renaming channel to {message}")
         comms_channel.rename(message)
     except SlackError:
         return (
             True,
-            "👋 Sorry, the channel couldn't be renamed. Make sure that name isn't taken already.",
+            "👋 Sorry, the channel couldn't be renamed. Make sure that name isn't taken already and it's not too long.",
         )
     return True, None
 
